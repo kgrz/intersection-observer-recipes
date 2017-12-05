@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Scroll Direction computation using Intersection Observer</title>
+    <style type="text/css" media="screen">
+      body {
+        font-size: 100%;
+        font-family: Avenir, Tahoma, sans-serif;
+        margin: 0;
+        line-height: 1.5;
+      }
+      p {
+        margin-bottom: 2rem;
+      }
+      .container {
+        max-width: 800px;
+        min-height: 800px;
+        margin: auto;
+      }
+      .extra-space {
+        height: 100px;
+      }
+      header {
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f44336;
+        color: #ffebee;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>
+        Scroll Direction computation using Intersection Observer
+      </h1>
+    </header>
+
+    <div class="container">
+      <p>
+        This paragraph is inside a container that has a minimum height of
+        800px in lieu of content. Using intersection observer, we can compute
+        the direction of scrolling using a singleton observer on
+        <strong>body</strong> element.
+      </p>
+
+      <p>
+        The below direction notice element has a class of
+        <code>js-direction</code> which is used in the callback to set the
+        direction string. <strong>Note that this is not the most efficient way
+          to update the DOM.</strong> This container element is the top-most
+        wrapper for all the content in this example. We can use something like
+        this to implement a naive scroll direction computer by tracking the
+        value inside a global variable.
+      </p>
+
+      <h2>Current Direction: <span class='js-direction'></span></h2>
+
+
+      <pre>
+        <code>
+          const container = document.querySelector('.container');
+
+          let thresholds = [];
+          for (let i = 1, len = 100; i <= len; i++) {
+            thresholds.push(i * 0.01);
+          }
+
+          const options = {
+            root: null,
+            rootMargin: '0px',
+            threshold: thresholds
+          };
+
+          const scrollDirectionEle = document.querySelector('.js-direction');
+
+          // global variable to store the previous Y position of body
+          let pastY;
+
+          const callback = (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                const currentY = entry.intersectionRect.y;
+
+                if (typeof pastY !== 'undefined') {
+                  if (pastY < currentY) {
+                    scrollDirectionEle.innerHTML = 'down';
+                  } else {
+                    scrollDirectionEle.innerHTML = 'up';
+                  }
+                }
+
+                pastY = currentY;
+              }
+            });
+          }
+
+          const io = new IntersectionObserver(callback, options);
+          io.observe(container);
+        </code>
+      </pre>
+    </div>
+    <script charset="utf-8">
+      const container = document.querySelector('.container');
+
+      let thresholds = [];
+      for (let i = 1, len = 100; i <= len; i++) {
+        thresholds.push(i * 0.01);
+      }
+
+      const options = {
+        root: null,
+        rootMargin: '0px',
+        threshold: thresholds
+      };
+
+      const scrollDirectionEle = document.querySelector('.js-direction');
+
+      // global variable to store the previous Y position of body
+      let pastY;
+
+      const callback = (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const currentY = entry.intersectionRect.y;
+
+            if (typeof pastY !== 'undefined') {
+              if (pastY < currentY) {
+                scrollDirectionEle.innerHTML = 'down';
+              } else {
+                scrollDirectionEle.innerHTML = 'up';
+              }
+            }
+
+            pastY = currentY;
+          }
+        });
+      }
+
+      const io = new IntersectionObserver(callback, options);
+      io.observe(container);
+    </script>
+  </body>
+</html>
