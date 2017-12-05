@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Lazyily Loading Images using Intersection Observer</title>
+    <style type="text/css" media="screen">
+      body {
+        font-size: 100%;
+        font-family: Avenir, Tahoma, sans-serif;
+        margin: 0;
+        line-height: 1.5;
+      }
+      p {
+        margin-bottom: 2rem;
+      }
+      .container {
+        max-width: 800px;
+        margin: auto;
+      }
+      .extra-space {
+        height: 100px;
+      }
+      header {
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f44336;
+        color: #ffebee;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>
+        Lazy loading images using Intersection Observer API
+      </h1>
+    </header>
+
+    <div class='container'>
+      <article>
+        <p>
+          Lazy loading an image when the container will <em>soon</em> be in
+          viewport is a useful pattern to use to improve the first paint times
+          on page loads, especially when the page is long and has lots of
+          images.
+
+          Examples usecases are e-commerce pages that tend to show a lot of
+          results, blog posts with lots of images that are hi-resolution
+          optimized like those on Medium etc.
+        </p>
+
+        <p>
+          Instead of repetitively <strong>asking</strong> the scroll length and the position
+          of the element, which can cause lots of reflows and thereby result in
+          jank, we can leverage Intersection Observer to <strong>tell</strong>
+          our code when the element is going to be in the viewport.
+        </p>
+
+        <p>
+          This page has such an observer on the article body you're reading
+          now. Below this, you will see an image element that will be empty.
+          For this example, only when the image is <em>entirely</em> in the
+          viewport, will the actual image get loaded.
+        </p>
+
+        <p>The structure of this HTML page looks like:</p>
+        <pre>
+          <code>
+            html
+              body
+                header
+                article
+                  &lt;!-- A bunch of paragraph tags --&gt;
+                  img
+          </code>
+        </pre>
+        <p><em>
+          Try checking out the source of this file to see a more readable JS and CSS code.
+      </em></p>
+
+        <p>
+          Inorder to load the image when it's in viewport, we first need to
+          know whenever it comes into viewport. Let's add an intersection
+          observer for this element:
+        </p>
+
+        <pre>
+          <code>
+            // We know we have only one image, so it's fine to use the singular
+            // selector for now
+            const image = document.querySelector('img');
+
+            const ioOptions = {
+              root: null,
+              rootMargin: '0px',
+              threshold: 1
+            };
+
+            const callback = (entries) => {
+              entries.forEach((entry) => {
+              if(entry.isIntersecting) {
+                // We can directly use the original handle created up above.
+                const image = entry.target;
+                image.src = "http://via.placeholder.com/800x500/ffebee/f44336?text=real+image";
+                image.alt = "This is the real image";
+              }
+              });
+            }
+
+            const io = new IntersectionObserver(callback, ioOptions);
+            io.observe(image);
+          </code>
+        </pre>
+
+        <p>
+          Notice that once you scroll enough that the image is fully in view
+          port, the color and the text and the alt-text of this image
+          change. <strong>Scroll slowly beyond this point.</strong>
+        </p>
+
+        <img src="http://via.placeholder.com/800x500/f44336/ffebee?text=placeholder+image" alt="image not yet loaded" height="400px" width="800px" />
+
+        <div class="extra-space"></div>
+      </article>
+    </div>
+  </body>
+  <script charset="utf-8">
+    const image = document.querySelector('img');
+
+    const ioOptions = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 1
+    };
+
+    const callback = (entries) => {
+      entries.forEach((entry) => {
+      if(entry.isIntersecting) {
+        // We can directly use the original handle created up above.
+        const image = entry.target;
+        image.src = "http://via.placeholder.com/800x500/ffebee/f44336?text=real+image";
+        image.alt = "This is the real image";
+      }
+      });
+    }
+
+    const io = new IntersectionObserver(callback, ioOptions);
+    io.observe(image);
+  </script>
+</html>
